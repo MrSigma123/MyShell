@@ -1,8 +1,5 @@
 #!/bin/bash
 
-echo "Compiling project..."
-make
-
 echo
 echo "Test 1: basic commands"
 echo "pwd
@@ -44,6 +41,19 @@ echo history_test_2
 echo
 echo "Checking history file:"
 tail -n 5 ~/.myshell_history
+
+
+echo
+echo "Test 7: script interpreter mode"
+SCRIPT_PATH="$(pwd)/myshell"
+cat > script_test <<EOF
+#!$SCRIPT_PATH
+echo script_test_started
+pwd
+echo script_test_finished
+EOF
+chmod +x script_test
+./script_test
 
 echo
 echo "All basic tests finished."

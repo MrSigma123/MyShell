@@ -1,10 +1,16 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c11
+TARGET = myshell
 
-all: myshell
+all: $(TARGET)
 
-myshell: myshell.c
-	$(CC) $(CFLAGS) myshell.c -o myshell
+$(TARGET): myshell.c
+	$(CC) $(CFLAGS) myshell.c -o $(TARGET)
+
+test: $(TARGET)
+	chmod +x test.sh
+	./test.sh
 
 clean:
-	rm -f myshell
+	rm -f $(TARGET)
+	rm -f test_output.txt append_test.txt out.txt commands.txt script_test

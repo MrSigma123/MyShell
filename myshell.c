@@ -325,15 +325,21 @@ void run_command(char **args, int background, char *cmd, char *outfile, int appe
 
 int main(int argc, char **argv) {
     int use_syslog = 0;
+    char *script_file = NULL;
 
-    if (argc > 1) {
-        if (strcmp(argv[1], "-l") == 0 || strcmp(argv[1], "--syslog") == 0) {
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-l") == 0 || strcmp(argv[i], "--syslog") == 0) {
             use_syslog = 1;
-            openlog("myshell", LOG_PID, LOG_USER);
+        } else if (script_file == NULL) {
+            script_file = argv[i];
         } else {
-            fprintf(stderr, "usage: %s [-l|--syslog]\n", argv[0]);
+            fprintf(stderr, "usage: %s [-l|--syslog] [script_file]\n", argv[0]);
             return 1;
         }
+    }
+
+    if (use_syslog) {
+        openlog("myshell", LOG_PID, LOG_USER);
     }
 
     struct sigaction sa;
@@ -350,6 +356,20 @@ int main(int argc, char **argv) {
     load_history();
     init_jobs();
 
+    FILE *input = stdin;
+
+    if (script_file != NULL) {
+        input = fopen(script_file, "r");
+
+        if (input == NULL) {
+            perror(script_file);
+            if (use_syslog) {
+                closelog();
+            }
+            return 1;
+        }
+    }
+
     char *line = NULL;
     size_t size = 0;
 
@@ -361,14 +381,14 @@ int main(int argc, char **argv) {
             print_history();
         }
 
-        if (isatty(STDIN_FILENO)) {
+        if (input == stdin && isatty(STDIN_FILENO)) {
             printf("myshell> ");
             fflush(stdout);
         }
 
         errno = 0;
 
-        if (getline(&line, &size, stdin) == -1) {
+        if (getline(&line, &size, input) == -1) {
             if (errno == EINTR) {
                 continue;
             }
@@ -379,6 +399,10 @@ int main(int argc, char **argv) {
         line[strcspn(line, "\n")] = '\0';
 
         if (line[0] == '\0') {
+            continue;
+        }
+
+        if (strncmp(line, "#!", 2) == 0) {
             continue;
         }
 
@@ -438,6 +462,10 @@ int main(int argc, char **argv) {
     }
 
     free(line);
+
+    if (input != stdin) {
+        fclose(input);
+    }
 
     if (use_syslog) {
         closelog();

@@ -59,6 +59,12 @@ Run the shell with:
 ./myshell
 ```
 
+The shell can also execute commands from a script file passed as an argument:
+
+```bash
+./myshell script_file
+```
+
 The interactive prompt is:
 
 ```text
@@ -89,10 +95,16 @@ In this mode, each entered command is written to syslog.
 
 ## Testing
 
-A basic test script is included:
+A basic test script is included. It can be run directly:
 
 ```bash
 ./test.sh
+```
+
+or through Makefile:
+
+```bash
+make test
 ```
 
 Before running it, make sure it is executable:
@@ -110,7 +122,8 @@ The script tests:
 - the `cd` command,
 - background processes,
 - the `jobs` command,
-- command history file.
+- command history file,
+- script interpreter mode using a shebang line.
 
 The shell can also be tested manually, for example:
 
@@ -335,10 +348,11 @@ Ctrl+D
 
 This also allows the shell to process commands from a file.
 
-Example:
+Examples:
 
 ```bash
 ./myshell < commands.txt
+./myshell commands.txt
 ```
 
 ### 13. Script usage
@@ -445,7 +459,7 @@ The executable supports the following startup options:
 --syslog
 ```
 
-Both options enable command logging to syslog.
+Both options enable command logging to syslog. The program may also receive one script file path as an argument.
 
 ## Limitations
 
