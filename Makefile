@@ -13,4 +13,6 @@ test: $(TARGET)
 
 clean:
 	rm -f $(TARGET)
-	rm -f test_output.txt append_test.txt out.txt commands.txt script_test
+	rm -f test_output.txt append_test.txt out.txt commands.txt commands_test.txt input_test.txt script_test
+	rm -f test_output.log
+	rm -rf test_home

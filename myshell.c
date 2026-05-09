@@ -24,13 +24,13 @@ typedef struct {
     int active;
 } Job;
 
-Job jobs[MAX_JOBS];
+static Job jobs[MAX_JOBS] = {0};
 
-char history[HIST_SIZE][MAX_LINE];
-int hist_count = 0;
-char hist_file[PATH_SIZE];
+static char history[HIST_SIZE][MAX_LINE] = {{0}};
+static int hist_count = 0;
+static char hist_file[PATH_SIZE] = {0};
 
-volatile sig_atomic_t show_history = 0;
+static volatile sig_atomic_t show_history = 0;
 
 void safe_copy(char *dest, const char *src, size_t size) {
     if (size == 0) {
@@ -390,6 +390,13 @@ int main(int argc, char **argv) {
 
         if (getline(&line, &size, input) == -1) {
             if (errno == EINTR) {
+                clearerr(input);
+
+                if (show_history) {
+                    show_history = 0;
+                    print_history();
+                }
+
                 continue;
             }
 
